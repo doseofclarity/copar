@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>COPAR | Community Organizing Participatory Action Research | CHN Review</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        .transition-all { transition: all 0.3s ease; }
+        .recall-mode .reveal-text {
+            background-color: #cbd5e1;
+            color: transparent;
+            border-radius: 0.375rem;
+            padding: 0 0.25rem;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+            box-shadow: inset 0 0 0 1px #94a3b8;
+        }
+        .recall-mode .reveal-text:hover,
+        .recall-mode .reveal-text.revealed {
+            background-color: #fde047;
+            color: #1e293b;
+            box-shadow: none;
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #0f766e; border-radius: 8px; }
+        .content-section { animation: fade 0.3s ease; }
+        @keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .locked-section { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+        .quiz-feedback-correct { background-color: #dcfce7; border-left: 4px solid #22c55e; }
+        .quiz-feedback-wrong { background-color: #fee2e2; border-left: 4px solid #ef4444; }
+        .nav-btn i.fa-lock, .nav-btn i.fa-unlock-alt { width: 1.5rem; display: inline-block; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #cbd5e1; padding: 8px; text-align: left; vertical-align: top; }
+        th { background-color: #f1f5f9; }
+    </style>
+    <script>
+        tailwind.config = { theme: { extend: { colors: { copar: { light: '#ccfbf1', DEFAULT: '#0f766e', dark: '#115e59' } } } } }
+    </script>
+</head>
+<body class="bg-slate-50 h-screen flex flex-col md:flex-row font-sans text-slate-800 overflow-hidden">
+
+    <!-- Mobile header -->
+    <div class="md:hidden bg-copar-dark text-white p-4 flex justify-between items-center shadow-md z-30 shrink-0">
+        <button onclick="toggleMobileMenu()" class="text-white focus:outline-none z-40"><i class="fa-solid fa-bars text-2xl"></i></button>
+        <h1 class="font-bold text-lg absolute left-1/2 transform -translate-x-1/2 pointer-events-none"><i class="fa-solid fa-people-arrows mr-2"></i>COPAR</h1>
+        <div class="w-8"></div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <nav id="sidebar" class="hidden md:flex flex-col w-full md:w-80 bg-white shadow-2xl h-full absolute md:relative z-30 transition-transform duration-300 shrink-0 border-r border-slate-200">
+        <div class="p-6 bg-gradient-to-br from-copar-dark to-copar text-white hidden md:block shrink-0">
+            <h1 class="font-black text-2xl tracking-wide"><i class="fa-solid fa-people-arrows mr-2"></i> COPAR</h1>
+            <p class="text-sm text-slate-300 mt-1">Community Organizing Participatory Action Research</p>
+        </div>
+        <div class="flex-1 overflow-y-auto py-4">
+            <ul class="space-y-1 text-sm font-medium">
+                <li><button onclick="showSection('home')" id="btn-home" class="nav-btn w-full text-left px-6 py-3 bg-copar-light text-copar-dark border-r-4 border-copar-dark"><i class="fa-solid fa-house w-6 nav-icon"></i><i class="fa-solid fa-lock w-6 hidden"></i> Start / Overview</button></li>
+                <li><button onclick="showSection('definition')" id="btn-definition" class="nav-btn w-full text-left px-6 py-3 text-slate-600 hover:bg-slate-50 locked-section"><i class="fa-solid fa-book-open w-6 nav-icon hidden"></i><i class="fa-solid fa-lock w-6"></i> Definition & Values</button></li>
+                <li><button onclick="showSection('principles')" id="btn-principles" class="nav-btn w-full text-left px-6 py-3 text-slate-600 hover:bg-slate-50 locked-section"><i class="fa-solid fa-list-check w-6 nav-icon hidden"></i><i class="fa-solid fa-lock w-6"></i> Core Principles</button></li>
+                <li><button onclick="showSection('phases')" id="btn-phases" class="nav-btn w-full text-left px-6 py-3 text-slate-600 hover:bg-slate-50 locked-section"><i class="fa-solid fa-diagram-project w-6 nav-icon hidden"></i><i class="fa-solid fa-lock w-6"></i> Phases of COPAR (7 Phases)</button></li>
+                <li><button onclick="showSection('mnemonics')" id="btn-mnemonics" class="nav-btn w-full text-left px-6 py-3 text-slate-600 hover:bg-slate-50 locked-section"><i class="fa-solid fa-brain w-6 nav-icon hidden"></i><i class="fa-solid fa-lock w-6"></i> Mnemonics & Tools</button></li>
+                <li><button onclick="showSection('levels')" id="btn-levels" class="nav-btn w-full text-left px-6 py-3 text-slate-600 hover:bg-slate-50 locked-section"><i class="fa-solid fa-chart-simple w-6 nav-icon hidden"></i><i class="fa-solid fa-lock w-6"></i> Levels of Care & PHN Role</button></li>
+                <li><button onclick="showSection('phn_role')" id="btn-phn_role" class="nav-btn w-full text-left px-6 py-3 text-slate-600 hover:bg-slate-50 locked-section"><i class="fa-solid fa-user-nurse w-6 nav-icon hidden"></i><i class="fa-solid fa-lock w-6"></i> PHN in COPAR</button></li>
+                <li><button onclick="showSection('recap')" id="btn-recap" class="nav-btn w-full text-left px-6 py-3 text-slate-600 hover:bg-slate-50 border-t mt-2 locked-section"><i class="fa-solid fa-table-list w-6 nav-icon hidden"></i><i class="fa-solid fa-lock w-6"></i> Recap & Mnemonic Table</button></li>
+                <li><button onclick="showSection('final_quiz_sec')" id="btn-final_quiz_sec" class="nav-btn w-full text-left px-6 py-3 text-slate-600 hover:bg-slate-50 locked-section"><i class="fa-solid fa-graduation-cap w-6 text-amber-500 nav-icon hidden"></i><i class="fa-solid fa-lock w-6"></i> Final 50‑Item Exam</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="flex-1 h-full overflow-y-auto bg-slate-100 relative w-full">
+        <div class="fixed top-16 md:top-4 right-4 md:right-8 z-40 flex items-center bg-white/90 backdrop-blur px-4 py-3 rounded-full shadow-lg border border-slate-200 cursor-pointer hover:bg-slate-50" onclick="toggleRecallMode()">
+            <span class="mr-3 text-sm font-bold text-slate-700 hidden md:inline"><i class="fa-solid fa-brain text-copar mr-1"></i> Active Recall</span>
+            <span class="mr-3 text-sm font-bold text-slate-700 md:hidden"><i class="fa-solid fa-brain text-copar"></i></span>
+            <button id="recall-toggle" class="w-12 h-6 bg-slate-300 rounded-full relative transition-colors duration-300 pointer-events-none"><div id="recall-knob" class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform duration-300 shadow"></div></button>
+        </div>
+
+        <div class="p-4 md:p-8 max-w-6xl mx-auto pb-32">
+            <!-- HOME SECTION -->
+            <section id="home" class="content-section flex flex-col items-center justify-center min-h-[80vh] text-center block">
+                <div class="bg-gradient-to-br from-slate-800 to-copar-dark text-white rounded-3xl shadow-2xl p-10 md:p-16 w-full">
+                    <div class="relative z-10">
+                        <div class="bg-white/10 inline-block p-4 rounded-full mb-6"><i class="fa-solid fa-people-arrows text-5xl"></i></div>
+                        <h3 class="text-xl font-bold text-slate-300 mb-2 uppercase">Empowerment · Participation · Action Research</h3>
+                        <h1 class="text-4xl md:text-6xl font-black mb-6">Community Organizing Participatory Action Research</h1>
+                        <div class="bg-white/10 inline-block px-6 py-3 rounded-full mb-10"><p class="text-lg">COPAR – “Health in the Hands of the People”</p></div>
+                        <button onclick="unlockFirstSection()" class="bg-slate-600 hover:bg-slate-500 text-white font-black py-4 px-10 rounded-full shadow-xl text-lg flex items-center mx-auto">Begin Lecture <i class="fa-solid fa-arrow-right ml-3"></i></button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 1: Definition & Values -->
+            <section id="definition" class="content-section hidden"><div class="bg-white rounded-2xl shadow-lg p-6 md:p-8"><h2 class="text-3xl font-black mb-6 border-b-2 border-copar pb-3"><i class="fa-solid fa-book-open text-copar mr-4"></i> Definition & Values of COPAR</h2><div class="grid md:grid-cols-2 gap-6"><div><ul class="list-disc pl-5 space-y-2"><li><span class="reveal-text">COPAR</span> – Community Organizing Participatory Action Research.</li><li><span class="reveal-text">Definition:</span> A process that empowers people by building capability, enhancing collective capacities, and mobilizing them to solve their own problems.</li><li>Ensures <span class="reveal-text">“Health in the Hands of the People”</span> (LOI 949 theme).</li><li>Emphasis: People solving own problems, internal capacity first, social movement before technical solutions.</li></ul></div><div><div class="bg-copar-light p-4 rounded-xl"><p class="font-bold">Values of COPAR (LOCOA, 2005):</p><ul><li><span class="reveal-text">Human Rights</span> – Right to life and self‑determination.</li><li><span class="reveal-text">Social Justice</span> – Fair access to resources and dignity.</li><li><span class="reveal-text">Social Responsibility</span> – Solidarity and collective concern.</li></ul></div></div></div><button onclick="openQuiz('definition')" class="mt-8 w-full bg-copar text-white font-black py-4 rounded-xl">📖 Take Quiz (10 items) to Unlock Next Section</button></div></section>
+
+            <!-- SECTION 2: Core Principles -->
+            <section id="principles" class="content-section hidden"><div class="bg-white rounded-2xl shadow-lg p-6 md:p-8"><h2 class="text-3xl font-black mb-6 border-b-2 border-copar pb-3"><i class="fa-solid fa-list-check text-copar mr-4"></i> Core Principles of COPAR</h2><div class="grid md:grid-cols-2 gap-4"><div class="border p-3 rounded"><i class="fa-solid fa-users"></i> <strong>People‑centered</strong><br>People are both the means and end of development.</div><div class="border p-3 rounded"><i class="fa-solid fa-hand-peace"></i> <strong>Participative</strong><br>People actively involved in assessment, planning, implementation, evaluation.</div><div class="border p-3 rounded"><i class="fa-solid fa-scale-balanced"></i> <strong>Democratic</strong><br>Majority, especially marginalized, decide and lead.</div><div class="border p-3 rounded"><i class="fa-solid fa-chart-line"></i> <strong>Developmental</strong><br>Focused on change and human development.</div><div class="border p-3 rounded"><i class="fa-solid fa-arrows-spin"></i> <strong>Process‑oriented</strong><br>Continuous, evolving, requires monitoring & evaluation.</div></div><button onclick="openQuiz('principles')" class="mt-8 w-full bg-copar text-white font-black py-4 rounded-xl">📜 Take Quiz (10 items) to Unlock Next Section</button></div></section>
+
+            <!-- SECTION 3: Phases of COPAR (7 Phases) -->
+            <section id="phases" class="content-section hidden"><div class="bg-white rounded-2xl shadow-lg p-6 md:p-8"><h2 class="text-3xl font-black mb-6 border-b-2 border-copar pb-3"><i class="fa-solid fa-diagram-project text-copar mr-4"></i> Phases of COPAR (7 Phases)</h2><div class="space-y-4"><div><h3 class="font-bold text-copar">1. Pre‑Entry Phase (Preparation)</h3><ul><li>Profile the area, reach out to authorities, establish entry plan, ensure alignment, note risks, touch base with institutions, review selection criteria, yield safe strategy.</li><li><span class="reveal-text">Mnemonics: SELECT</span> – Severe situation, Existing laws, Lack of access, Exploited, Community oppressed, Target for empowerment.</li></ul></div><div><h3 class="font-bold text-copar">2. Entry Phase (Integration)</h3><ul><li>Establish presence, notify leaders, take part in community life, respect local norms, yield opportunities for dialogue.</li><li>Avoid: <span class="reveal-text">Padrino approach</span> (false hopes) & <span class="reveal-text">Bongga approach</span> (dole-outs).</li></ul></div><div><h3 class="font-bold text-copar">3. Core Group Formation (CORE‑G)</h3><ul><li>Select members who <span class="reveal-text">Communicate well, Objective/neutral, Respected member, Eager to learn, Grassroot background.</span></li></ul></div><div><h3 class="font-bold text-copar">4. Community Organizing & Capacity Building (COM‑ORG)</h3><ul><li>Community analyzes issues, organize structures, mobilize for participation, open learning opportunities, recognize potentials, grow in capacity.</li></ul></div><div><h3 class="font-bold text-copar">5. Community Action Phase (ACT ION)</h3><ul><li>Apply solutions, coordinate with stakeholders, tap resources, initiate participation, organize & train CHWs, nurture ownership.</li><li><span class="reveal-text">ARAS: Action‑Reflection‑Action Session</span> – do, think, improve.</li></ul></div><div><h3 class="font-bold text-copar">6. Sustenance & Strengthening Phase (S-T-R-O-N-G)</h3><ul><li>Sustain initiatives, transfer leadership, reinforce local capabilities, organize linkages, nurture independence, generate long‑term health plan.</li></ul></div><div><h3 class="font-bold text-copar">7. Turn Over / Termination</h3><ul><li>Endorsement, turnover of leadership to community.</li></ul></div></div><button onclick="openQuiz('phases')" class="mt-8 w-full bg-copar text-white font-black py-4 rounded-xl">📌 Take Quiz (10 items) to Unlock Next Section</button></div></section>
+
+            <!-- SECTION 4: Mnemonics & Tools -->
+            <section id="mnemonics" class="content-section hidden"><div class="bg-white rounded-2xl shadow-lg p-6 md:p-8"><h2 class="text-3xl font-black mb-6 border-b-2 border-copar pb-3"><i class="fa-solid fa-brain text-copar mr-4"></i> Mnemonics & Tools in COPAR</h2><div class="overflow-x-auto"><table class="w-full"><thead class="bg-copar-dark text-white"><tr><th>Mnemonic</th><th>Meaning</th></tr></thead><tbody><tr><td class="font-bold">SELECT</td><td class="reveal-text">Site selection: Severe health situation, Existing laws, Lack of access, Exploited, Community oppressed, Target for empowerment</td></tr><tr class="bg-slate-50"><td class="font-bold">ENTRY</td><td class="reveal-text">Establish presence, Notify leaders, Take part in community life, Respect norms, Yield dialogue</td></tr><tr><td class="font-bold">CORE‑G</td><td class="reveal-text">Communicates well, Objective/neutral, Respected member, Eager to learn, Grassroot background</td></tr><tr class="bg-slate-50"><td class="font-bold">COM‑ORG</td><td class="reveal-text">Community analyzes, Organize structures, Mobilize, Open learning, Recognize potentials, Grow capacity</td></tr><tr><td class="font-bold">ACT ION</td><td class="reveal-text">Apply solutions, Coordinate, Tap resources, Initiate participation, Organize & train CHWs, Nurture ownership</td></tr><tr class="bg-slate-50"><td class="font-bold">ARAS</td><td class="reveal-text">Action → Reflection → Action (continuous learning cycle)</td></tr><tr><td class="font-bold">STRONG</td><td class="reveal-text">Sustain, Transfer leadership, Reinforce capabilities, Organize linkages, Nurture independence, Generate long‑term plan</td></tr></tbody></table></div><div class="bg-amber-50 p-3 mt-4 rounded-lg"><p><strong>Padrino approach</strong> = using a patron, gives false hopes. <strong>Bongga approach</strong> = dole‑outs (free goods), undermines sustainability.</p></div><button onclick="openQuiz('mnemonics')" class="mt-8 w-full bg-copar text-white font-black py-4 rounded-xl">🧩 Take Quiz (10 items) to Unlock Next Section</button></div></section>
+
+            <!-- SECTION 5: Levels of Care & PHN Role -->
+            <section id="levels" class="content-section hidden"><div class="bg-white rounded-2xl shadow-lg p-6 md:p-8"><h2 class="text-3xl font-black mb-6 border-b-2 border-copar pb-3"><i class="fa-solid fa-chart-simple text-copar mr-4"></i> Four Levels of Care in COPAR/CHN</h2><div class="grid md:grid-cols-2 gap-4"><div class="border p-3 rounded"><strong>Individual</strong> – Entry point</div><div class="border p-3 rounded"><strong>Family</strong> – Focus of care / Focal point</div><div class="border p-3 rounded"><strong>Population Group</strong> – Point of specific care</div><div class="border p-3 rounded"><strong>Community</strong> – Point of entire care</div></div><div class="bg-copar-light p-4 mt-4 rounded-xl"><p class="font-bold">COPAR in the PHN Role:</p><ul><li>Facilitator and enabler, not director.</li><li>Raises awareness, mobilizes community for collective action.</li><li>Trains BHWs and community leaders.</li><li>Advocates for health policies and resource allocation.</li></ul></div><button onclick="openQuiz('levels')" class="mt-8 w-full bg-copar text-white font-black py-4 rounded-xl">🎯 Take Quiz (10 items) to Unlock Next Section</button></div></section>
+
+            <!-- SECTION 6: PHN Role in COPAR -->
+            <section id="phn_role" class="content-section hidden"><div class="bg-white rounded-2xl shadow-lg p-6 md:p-8"><h2 class="text-3xl font-black mb-6 border-b-2 border-copar pb-3"><i class="fa-solid fa-user-nurse text-copar mr-4"></i> PHN Role in COPAR Process</h2><ul class="list-disc pl-5 space-y-3"><li><strong>Pre‑entry:</strong> Conducts community profile, coordinates with LGU leaders.</li><li><strong>Entry:</strong> Establishes rapport, integrates with community, avoids padrino/bongga approaches.</li><li><strong>Core group formation:</strong> Identifies potential leaders with CORE‑G traits.</li><li><strong>Organizing & capacity building:</strong> Facilitates training, helps community analyze problems.</li><li><strong>Action phase:</strong> Guides ARAS sessions, mobilizes resources, trains CHWs.</li><li><strong>Sustenance & strengthening:</strong> Supports leadership transfer, builds linkages.</li><li><strong>Termination:</strong> Ensures smooth turnover and community ownership.</li></ul><div class="bg-amber-50 p-3 mt-4 rounded-lg"><p><strong>Key principle:</strong> The PHN is a catalyst – the community must eventually lead without dependency.</p></div><button onclick="openQuiz('phn_role')" class="mt-8 w-full bg-copar text-white font-black py-4 rounded-xl">🩺 Take Quiz (10 items) to Unlock Recap & Final Exam</button></div></section>
+
+            <!-- RECAP & MNEMONIC TABLE -->
+            <section id="recap" class="content-section hidden"><div class="bg-white rounded-2xl shadow-lg p-6 md:p-8"><h2 class="text-3xl font-black mb-6 border-b-2 border-copar pb-3"><i class="fa-solid fa-table-list text-copar mr-4"></i> Recap – COPAR Essentials</h2><div class="overflow-x-auto"><table class="w-full"><thead class="bg-copar-dark text-white"><tr><th>Phase</th><th>Mnemonic / Key</th></thead><tbody><tr><td>Pre‑entry</td><td class="reveal-text">SELECT – site selection criteria</td></tr><tr class="bg-slate-50"><td>Entry</td><td class="reveal-text">ENTRY – Establish, Notify, Take part, Respect, Yield</td></tr><tr><td>Core group formation</td><td class="reveal-text">CORE‑G – Communicates, Objective, Respected, Eager, Grassroot</td></tr><tr class="bg-slate-50"><td>Organizing & capacity building</td><td class="reveal-text">COM‑ORG – Community analyzes, Organize, Mobilize, Open, Recognize, Grow</td></tr><tr><td>Action</td><td class="reveal-text">ACT ION & ARAS (Action‑Reflection‑Action)</td></tr><tr class="bg-slate-50"><td>Sustenance & strengthening</td><td class="reveal-text">STRONG – Sustain, Transfer, Reinforce, Organize, Nurture, Generate</td></tr><tr><td>Termination</td><td class="reveal-text">Turnover / Endorsement</td></tr></tbody></table></div><button onclick="openQuiz('final_quiz')" class="mt-8 w-full bg-amber-500 text-slate-900 font-black py-4 rounded-xl text-lg">🎓 Take Final 50‑Item Exam</button></div></section>
+
+            <!-- FINAL QUIZ SECTION -->
+            <section id="final_quiz_sec" class="content-section hidden"><div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 text-center min-h-[60vh] flex flex-col justify-center items-center"><i class="fa-solid fa-graduation-cap text-8xl text-amber-400 mb-6"></i><h2 class="text-4xl font-black text-slate-800 mb-4">COPAR Mastery Exam</h2><p class="text-lg text-slate-600 mb-8">50 comprehensive items covering definition, values, principles, phases, mnemonics, and PHN role. 75% required to pass.</p><button onclick="openQuiz('final_quiz')" class="w-full max-w-md bg-slate-800 text-white font-black py-4 rounded-xl text-xl">Start Final Exam</button></div></section>
+        </div>
+    </main>
+
+    <!-- QUIZ MODAL -->
+    <div id="quiz-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4"><div class="bg-white w-full max-w-3xl rounded-2xl shadow-2xl p-6 md:p-8 relative max-h-[90vh] overflow-y-auto"><button onclick="closeQuiz()" class="absolute top-4 right-4 text-slate-400 hover:text-red-500"><i class="fa-solid fa-xmark text-2xl"></i></button><h2 id="quiz-title" class="text-3xl font-black text-slate-800 mb-2"></h2><p class="text-slate-600 mb-6 border-b pb-4">Score ≥75% to unlock next section.</p><div id="quiz-questions-container" class="space-y-4"></div><button id="quiz-submit-btn" onclick="submitQuiz()" class="mt-8 w-full bg-copar text-white font-bold py-4 rounded-xl">Submit Answers</button><div id="quiz-result-container" class="hidden mt-6 p-4 rounded-xl bg-slate-100 border"></div></div></div>
+
+    <script>
+        let unlockedSections = ['home'];
+        // QUIZ DATA (10 questions each section)
+        const quizzes = {
+            definition: { title: "Definition & Values of COPAR", next: "principles", questions: [
+                { q: "What does COPAR stand for?", options: ["Community Organizing Participatory Action Research", "Community Outreach Program for Action Research", "Cooperative Organizing for Primary Action Research", "Community Oriented Participatory Action Response"], ans: 0 },
+                { q: "COPAR empowers people by:", options: ["Building capability and mobilizing them to solve own problems", "Providing dole-outs", "Top-down management", "Replacing community leaders"], ans: 0 },
+                { q: "The theme 'Health in the Hands of the People' is from:", options: ["LOI 949", "RA 7160", "RA 11223", "PD 856"], ans: 0 },
+                { q: "Which value of COPAR refers to the right to life and self-determination?", options: ["Human Rights", "Social Justice", "Social Responsibility", "Equity"], ans: 0 },
+                { q: "Fair access to resources and dignity is which COPAR value?", options: ["Social Justice", "Human Rights", "Social Responsibility", "Solidarity"], ans: 0 },
+                { q: "COPAR emphasizes that people should:", options: ["Solve their own problems", "Wait for government aid", "Depend on foreign donors", "Rely solely on experts"], ans: 0 },
+                { q: "Which value stresses solidarity and collective concern?", options: ["Social Responsibility", "Human Rights", "Social Justice", "Participation"], ans: 0 },
+                { q: "In COPAR, the community should be viewed as:", options: ["Both means and end of development", "Passive recipients", "Obstacles", "Only beneficiaries"], ans: 0 },
+                { q: "Social movement comes first before technical solutions. This emphasizes:", options: ["Empowerment and consciousness", "Technology", "Foreign aid", "Infrastructure"], ans: 0 },
+                { q: "COPAR aims to develop:", options: ["Self-reliant communities", "Dependency on nurses", "Centralized control", "Profit-oriented health services"], ans: 0 }
+            ]},
+            principles: { title: "Core Principles of COPAR", next: "phases", questions: [
+                { q: "Which principle means people actively participate in all steps?", options: ["Participative", "People-centered", "Democratic", "Process-oriented"], ans: 0 },
+                { q: "The principle that the majority, especially marginalized, decide and lead is:", options: ["Democratic", "Developmental", "Process-oriented", "People-centered"], ans: 0 },
+                { q: "COPAR is focused on change and human development. This is the:", options: ["Developmental principle", "Participative principle", "Democratic principle", "Process-oriented principle"], ans: 0 },
+                { q: "Continuous, evolving, requiring monitoring & evaluation describes:", options: ["Process-oriented", "People-centered", "Democratic", "Developmental"], ans: 0 },
+                { q: "Which principle states that people are both means and end?", options: ["People-centered", "Participative", "Democratic", "Developmental"], ans: 0 },
+                { q: "COPAR ensures that decisions are made by:", options: ["The majority, especially the marginalized", "Only the nurse", "Only the mayor", "Foreign experts"], ans: 0 },
+                { q: "A principle that requires constant reflection and adaptation is:", options: ["Process-oriented", "People-centered", "Developmental", "Democratic"], ans: 0 },
+                { q: "Which principle is violated when a nurse imposes solutions without community input?", options: ["Participative", "Democratic", "People-centered", "All of the above"], ans: 3 },
+                { q: "COPAR principles are derived from:", options: ["Critical pedagogy and empowerment theory", "Medical model", "Authoritarian management", "Profit-driven models"], ans: 0 },
+                { q: "The ultimate goal of COPAR principles is:", options: ["Community self-reliance and empowerment", "Increased dependency", "More nurses", "Higher budgets"], ans: 0 }
+            ]},
+            phases: { title: "Phases of COPAR (7 Phases)", next: "mnemonics", questions: [
+                { q: "The first phase of COPAR is:", options: ["Pre-entry Phase", "Entry Phase", "Core group formation", "Action phase"], ans: 0 },
+                { q: "During the entry phase, the nurse should avoid:", options: ["Padrino and Bongga approaches", "Building rapport", "Respecting local norms", "Notifying leaders"], ans: 0 },
+                { q: "CORE-G is a mnemonic for:", options: ["Core group formation", "Entry phase", "Action phase", "Sustenance phase"], ans: 0 },
+                { q: "The Action‑Reflection‑Action cycle is called:", options: ["ARAS", "SELECT", "ENTRY", "STRONG"], ans: 0 },
+                { q: "Which phase involves transferring leadership to the community?", options: ["Turn over / Termination", "Sustenance phase", "Action phase", "Core group formation"], ans: 0 },
+                { q: "In the pre-entry phase, site selection uses the mnemonic:", options: ["SELECT", "ENTRY", "CORE-G", "COM-ORG"], ans: 0 },
+                { q: "The phase where community analyzes its own issues and organizes structures is:", options: ["Community Organizing & Capacity Building (COM-ORG)", "Entry", "Action", "Pre-entry"], ans: 0 },
+                { q: "STRONG mnemonic is used for which phase?", options: ["Sustenance & Strengthening", "Action", "Core group", "Entry"], ans: 0 },
+                { q: "The action phase includes the mnemonic:", options: ["ACT ION", "SELECT", "ENTRY", "CORE-G"], ans: 0 },
+                { q: "Which phase immediately follows core group formation?", options: ["Community Organizing & Capacity Building", "Action", "Entry", "Turn over"], ans: 0 }
+            ]},
+            mnemonics: { title: "Mnemonics & Tools", next: "levels", questions: [
+                { q: "SELECT is used for:", options: ["Site selection (pre-entry)", "Entry phase", "Core group formation", "Action phase"], ans: 0 },
+                { q: "In SELECT, the letter 'S' stands for:", options: ["Severe health situation", "Social justice", "Sustenance", "Self-reliance"], ans: 0 },
+                { q: "ENTRY mnemonic: 'E' stands for:", options: ["Establish presence", "Evaluate", "Enter", "Empower"], ans: 0 },
+                { q: "In CORE-G, 'R' stands for:", options: ["Respected member", "Reinforce", "Resource", "Research"], ans: 0 },
+                { q: "COM-ORG mnemonic includes 'O' for:", options: ["Organize structures", "Objective", "Open", "Ownership"], ans: 0 },
+                { q: "The action phase mnemonic is:", options: ["ACT ION", "STRONG", "SELECT", "CORE-G"], ans: 0 },
+                { q: "ARAS stands for:", options: ["Action-Reflection-Action Session", "Action Research Assessment System", "Action Review and Support", "Assessment-Reflection-Action"], ans: 0 },
+                { q: "Which mnemonic is for the sustenance phase?", options: ["STRONG", "SELECT", "ENTRY", "COM-ORG"], ans: 0 },
+                { q: "The 'Padrino approach' in COPAR refers to:", options: ["Using a patron that gives false hopes", "Community participation", "Action research", "Core group formation"], ans: 0 },
+                { q: "The 'Bongga approach' means:", options: ["Dole-outs that undermine sustainability", "Empowerment", "Participatory planning", "Leadership training"], ans: 0 }
+            ]},
+            levels: { title: "Four Levels of Care & PHN Role", next: "phn_role", questions: [
+                { q: "In COPAR, the entry point is the:", options: ["Individual", "Family", "Population group", "Community"], ans: 0 },
+                { q: "The focus of care/focal point in CHN is the:", options: ["Family", "Individual", "Community", "Population group"], ans: 0 },
+                { q: "The point of specific care is the:", options: ["Population group", "Individual", "Family", "Community"], ans: 0 },
+                { q: "The point of entire care is the:", options: ["Community", "Individual", "Family", "Population group"], ans: 0 },
+                { q: "During pre-entry, the PHN should:", options: ["Conduct community profile and coordinate with LGU", "Start action projects", "Form core group", "Transfer leadership"], ans: 0 },
+                { q: "In the entry phase, the PHN should avoid:", options: ["Padrino and Bongga approaches", "Building rapport", "Notifying leaders", "Participating in community life"], ans: 0 },
+                { q: "The PHN's role during core group formation is to:", options: ["Identify members with CORE-G traits", "Implement projects", "Leave the community", "Provide dole-outs"], ans: 0 },
+                { q: "ARAS sessions are facilitated by the PHN to:", options: ["Enable critical reflection and improvement", "Distribute goods", "Replace leaders", "Stop community action"], ans: 0 },
+                { q: "During the sustenance phase, the PHN focuses on:", options: ["Transfer of leadership and building linkages", "Direct implementation", "Pre-entry activities", "Site selection"], ans: 0 },
+                { q: "In termination, the PHN ensures:", options: ["Smooth turnover and community ownership", "Continued dependency", "More dole-outs", "Extended stay"], ans: 0 }
+            ]},
+            phn_role: { title: "PHN Role in COPAR", next: "recap", questions: [
+                { q: "The PHN in COPAR acts primarily as:", options: ["Facilitator and enabler", "Director", "Dole-out provider", "Political leader"], ans: 0 },
+                { q: "In the pre-entry phase, the PHN should:", options: ["Conduct ocular survey and courtesy calls", "Start action projects", "Form the core group", "Transfer leadership"], ans: 0 },
+                { q: "Which approach should the PHN avoid during entry?", options: ["Padrino and Bongga", "Participatory dialogue", "Respecting norms", "Notifying leaders"], ans: 0 },
+                { q: "The PHN helps form the core group based on:", options: ["CORE-G criteria", "SELECT criteria", "STRONG criteria", "ARAS"], ans: 0 },
+                { q: "During the action phase, the PHN facilitates:", options: ["ARAS (Action-Reflection-Action)", "SELECT", "ENTRY", "CORE-G"], ans: 0 },
+                { q: "The PHN trains community health workers (CHWs) in which phase?", options: ["Action phase (ACT ION)", "Pre-entry", "Entry", "Termination"], ans: 0 },
+                { q: "In the sustenance phase, the PHN supports:", options: ["Leadership transfer and linkages", "Direct service provision", "Dole-outs", "Site selection"], ans: 0 },
+                { q: "The ultimate goal of the PHN in COPAR is:", options: ["Community self-reliance and empowerment", "Permanent dependency on nurses", "Building more health centers", "Increasing clinic visits"], ans: 0 },
+                { q: "Which of the following is NOT a PHN role in COPAR?", options: ["Prescribing all medications", "Facilitating meetings", "Training BHWs", "Conducting community diagnosis"], ans: 0 },
+                { q: "The PHN should terminate her involvement when:", options: ["Community can manage independently", "Community requests dole-outs", "Budget is zero", "Mayor orders"], ans: 0 }
+            ]}
+        };
+
+        // Build final 50-question exam (mix from all sections)
+        let finalQs = [];
+        for(let sec of ['definition','principles','phases','mnemonics','levels','phn_role']) {
+            finalQs = finalQs.concat(quizzes[sec].questions.slice(0,9));
+        }
+        while(finalQs.length < 50) finalQs.push(quizzes['definition'].questions[0]);
+        quizzes['final_quiz'] = { title: "Final 50-Item Exam: COPAR", next: null, questions: finalQs };
+
+        function unlockFirstSection() { if(!unlockedSections.includes('definition')) { unlockedSections.push('definition'); updateSidebarUI(); } showSection('definition'); }
+        function showSection(id) { if(!unlockedSections.includes(id) && id !== 'home') { alert("Complete the quiz at the bottom of the previous section to unlock."); return; } document.querySelectorAll('.content-section').forEach(el=>el.classList.add('hidden')); document.getElementById(id)?.classList.remove('hidden'); document.querySelectorAll('.nav-btn').forEach(btn=>{btn.classList.remove('bg-copar-light','text-copar-dark','border-r-4','border-copar-dark'); btn.classList.add('text-slate-600');}); let active=document.getElementById('btn-'+id); if(active){active.classList.remove('text-slate-600');active.classList.add('bg-copar-light','text-copar-dark','border-r-4','border-copar-dark');} if(window.innerWidth<768)document.getElementById('sidebar').classList.add('hidden'); document.querySelector('main').scrollTop=0; }
+        function updateSidebarUI(){['home','definition','principles','phases','mnemonics','levels','phn_role','recap','final_quiz_sec'].forEach(sec=>{let btn=document.getElementById('btn-'+sec);if(!btn)return;let lock=btn.querySelector('.fa-lock'),icon=btn.querySelector('.nav-icon');if(unlockedSections.includes(sec)||sec==='home'){btn.classList.remove('locked-section');if(lock)lock.classList.add('hidden');if(icon)icon.classList.remove('hidden');}else{btn.classList.add('locked-section');if(lock)lock.classList.remove('hidden');if(icon)icon.classList.add('hidden');}});}
+        let currentQuiz = null;
+        function openQuiz(sectionId) { currentQuiz=sectionId; let qd=quizzes[sectionId]; document.getElementById('quiz-title').innerText=qd.title; let container=document.getElementById('quiz-questions-container'); container.innerHTML=''; qd.questions.forEach((q,idx)=>{let html=`<div class="bg-slate-50 p-4 rounded-xl mb-4"><p class="font-bold mb-3">${idx+1}. ${q.q}</p><div class="space-y-2">`; q.options.forEach((opt,oi)=>{html+=`<label class="flex items-center space-x-3 p-2 hover:bg-white cursor-pointer"><input type="radio" name="q${idx}" value="${oi}" class="form-radio text-copar"><span>${opt}</span></label>`;}); html+=`</div><div class="feedback-${idx} text-sm mt-2 hidden"></div></div>`; container.innerHTML+=html;}); document.getElementById('quiz-submit-btn').classList.remove('hidden'); document.getElementById('quiz-result-container').classList.add('hidden'); document.getElementById('quiz-modal').classList.remove('hidden'); }
+        function closeQuiz() { document.getElementById('quiz-modal').classList.add('hidden'); }
+        function submitQuiz() { let qd=quizzes[currentQuiz]; let score=0; for(let i=0;i<qd.questions.length;i++){ let selected=document.querySelector(`input[name="q${i}"]:checked`); let correct=(selected&&parseInt(selected.value)===qd.questions[i].ans); if(correct) score++; let fbDiv=document.querySelector(`.feedback-${i}`); if(fbDiv){ let correctAns=qd.questions[i].options[qd.questions[i].ans]; if(correct){fbDiv.innerHTML='✔ Correct!';fbDiv.parentElement?.classList.add('quiz-feedback-correct');}else{let selectedText=selected?qd.questions[i].options[parseInt(selected.value)]:"No answer";fbDiv.innerHTML=`✘ Incorrect. Correct: ${correctAns}`;fbDiv.parentElement?.classList.add('quiz-feedback-wrong');}fbDiv.classList.remove('hidden');}} let percent=(score/qd.questions.length)*100; let btn=document.getElementById('quiz-submit-btn'); let resultDiv=document.getElementById('quiz-result-container'); btn.classList.add('hidden'); resultDiv.classList.remove('hidden'); if(percent>=75){ if(currentQuiz==='final_quiz'){ resultDiv.innerHTML=`<div class="text-amber-500 text-5xl text-center">🏆</div><h3 class="text-2xl font-black text-center">Excellent!</h3><p class="text-center">Score ${score}/${qd.questions.length} (${percent}%)</p><button onclick="closeQuiz()" class="mt-4 w-full bg-slate-800 text-white py-2 rounded-lg">Close</button>`; return; } if(qd.next && !unlockedSections.includes(qd.next)){ unlockedSections.push(qd.next); if(qd.next==='recap') unlockedSections.push('final_quiz_sec'); updateSidebarUI(); } resultDiv.innerHTML=`<div class="text-green-600 text-5xl text-center">✓</div><h3 class="text-2xl font-black text-center">Passed!</h3><p class="text-center">Score ${score}/${qd.questions.length} (${percent}%)</p><button onclick="closeQuiz(); showSection('${qd.next}')" class="mt-4 w-full bg-green-600 text-white py-2 rounded-lg">Unlock Next Section</button>`; } else { resultDiv.innerHTML=`<div class="text-red-500 text-5xl text-center">✗</div><h3 class="text-2xl font-black text-center">Failed (Need 75%)</h3><p class="text-center">Score ${score}/${qd.questions.length} (${percent}%)</p><button onclick="openQuiz('${currentQuiz}')" class="mt-4 w-full bg-slate-600 text-white py-2 rounded-lg">Try Again</button>`; } }
+        function toggleRecallMode(){ let active=!document.body.classList.contains('recall-mode'); let toggle=document.getElementById('recall-toggle'),knob=document.getElementById('recall-knob'); if(active){document.body.classList.add('recall-mode');toggle.classList.add('bg-copar-dark');knob.classList.add('translate-x-6');}else{document.body.classList.remove('recall-mode');toggle.classList.remove('bg-copar-dark');knob.classList.remove('translate-x-6');} }
+        function toggleMobileMenu(){ let s=document.getElementById('sidebar'); if(s.classList.contains('hidden')) s.classList.remove('hidden'); else s.classList.add('hidden'); }
+        document.addEventListener('DOMContentLoaded',()=>{ updateSidebarUI(); document.querySelectorAll('.reveal-text').forEach(el=>el.addEventListener('click',function(){if(document.body.classList.contains('recall-mode'))this.classList.toggle('revealed');})); });
+    </script>
+</body>
+</html>
